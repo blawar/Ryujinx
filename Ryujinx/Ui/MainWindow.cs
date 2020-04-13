@@ -143,6 +143,17 @@ namespace Ryujinx.Ui
             if (ConfigurationState.Instance.Ui.GuiColumns.FileSizeColumn)   _fileSizeToggle.Active   = true;
             if (ConfigurationState.Instance.Ui.GuiColumns.PathColumn)       _pathToggle.Active       = true;
 
+            _favToggle.Toggled        += Fav_Toggled;
+            _iconToggle.Toggled       += Icon_Toggled;
+            _appToggle.Toggled        += App_Toggled;
+            _developerToggle.Toggled  += Developer_Toggled;
+            _versionToggle.Toggled    += Version_Toggled;
+            _timePlayedToggle.Toggled += TimePlayed_Toggled;
+            _lastPlayedToggle.Toggled += LastPlayed_Toggled;
+            _fileExtToggle.Toggled    += FileExt_Toggled;
+            _fileSizeToggle.Toggled   += FileSize_Toggled;
+            _pathToggle.Toggled       += Path_Toggled;
+
 #if USE_DEBUGGING
             _debugger = new Debugger.Debugger();
             _openDebugger.Activated += _openDebugger_Opened;
@@ -1032,7 +1043,7 @@ namespace Ryujinx.Ui
             UpdateColumns();
         }
 
-        private void Title_Toggled(object sender, EventArgs args)
+        private void App_Toggled(object sender, EventArgs args)
         {
             ConfigurationState.Instance.Ui.GuiColumns.AppColumn.Value = _appToggle.Active;
 
