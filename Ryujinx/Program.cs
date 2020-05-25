@@ -48,23 +48,9 @@ namespace Ryujinx
             string globalConfigurationPath = Path.Combine(globalBasePath, "Config.json");
 
             // Now load the configuration as the other subsystems are now registered
-            if (File.Exists(localConfigurationPath))
-            {
-                ConfigurationPath = localConfigurationPath;
+            ConfigurationPath = File.Exists(localConfigurationPath) ? localConfigurationPath : File.Exists(globalConfigurationPath) ? globalConfigurationPath : null;
 
-                ConfigurationFileFormat configurationFileFormat = ConfigurationFileFormat.Load(localConfigurationPath);
-
-                ConfigurationState.Instance.Load(configurationFileFormat, ConfigurationPath);
-            }
-            else if (File.Exists(globalConfigurationPath))
-            {
-                ConfigurationPath = globalConfigurationPath;
-
-                ConfigurationFileFormat configurationFileFormat = ConfigurationFileFormat.Load(globalConfigurationPath);
-
-                ConfigurationState.Instance.Load(configurationFileFormat, ConfigurationPath);
-            }
-            else
+            if (ConfigurationPath == null)
             {
                 // No configuration, we load the default values and save it on disk
                 ConfigurationPath = globalConfigurationPath;
@@ -73,7 +59,19 @@ namespace Ryujinx
                 Directory.CreateDirectory(globalBasePath);
 
                 ConfigurationState.Instance.LoadDefault();
-                ConfigurationState.Instance.ToFileFormat().SaveConfig(globalConfigurationPath);
+                ConfigurationState.Instance.ToFileFormat().SaveConfig(ConfigurationPath);
+            }
+            else
+            {
+                if (ConfigurationFileFormat.TryLoad(ConfigurationPath, out ConfigurationFileFormat configurationFileFormat))
+                {
+                    ConfigurationState.Instance.Load(configurationFileFormat, ConfigurationPath);
+                }
+                else
+                {
+                    ConfigurationState.Instance.LoadDefault();
+                    Logger.PrintWarning(LogClass.Application, $"Failed to load config! Loading the default config instead.\nFailed config location {ConfigurationPath}");
+                }
             }
 
             Logger.PrintInfo(LogClass.Application, $"Ryujinx Version: {Version}");
