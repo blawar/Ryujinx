@@ -186,7 +186,10 @@ namespace Ryujinx.Configuration
         /// <param name="path">The path to the JSON configuration file</param>
         public void SaveConfig(string path)
         {
-            File.WriteAllText(path, JsonHelper.Serialize(this, true));
+            using (StreamWriter streamWriter = new StreamWriter(File.Create(path, 4096, FileOptions.WriteThrough)))
+            {
+                streamWriter.Write(JsonHelper.Serialize(this, true));
+            }
         }
     }
 }
