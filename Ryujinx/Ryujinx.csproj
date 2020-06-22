@@ -32,6 +32,8 @@
 
   <ItemGroup>
     <None Remove="Ui\AboutWindow.glade" />
+    <None Remove="Ui\AmiiboDialog.glade" />
+    <None Remove="Ui\assets\AmiiboLogo.png" />
     <None Remove="Ui\assets\JoyConLeft.svg" />
     <None Remove="Ui\assets\JoyConPair.svg" />
     <None Remove="Ui\assets\JoyConRight.svg" />
@@ -56,6 +58,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Ui\AboutWindow.glade" />
+    <EmbeddedResource Include="Ui\AmiiboDialog.glade" />
+    <EmbeddedResource Include="Ui\assets\AmiiboLogo.png" />
     <EmbeddedResource Include="Ui\assets\JoyConLeft.svg" />
     <EmbeddedResource Include="Ui\assets\JoyConPair.svg" />
     <EmbeddedResource Include="Ui\assets\JoyConRight.svg" />
