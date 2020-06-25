@@ -1,5 +1,4 @@
-﻿using LibHac;
-using LibHac.Common;
+﻿using LibHac.Common;
 using LibHac.Ns;
 
 namespace Ryujinx.Ui
@@ -10,7 +9,7 @@ namespace Ryujinx.Ui
         public byte[] Icon          { get; set; }
         public string TitleName     { get; set; }
         public string TitleId       { get; set; }
-        public string Developer     { get; set; }
+        public string Publisher     { get; set; }
         public string Version       { get; set; }
         public string TimePlayed    { get; set; }
         public string LastPlayed    { get; set; }

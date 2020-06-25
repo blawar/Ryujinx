@@ -2,7 +2,7 @@
 <!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <object class="GtkWindow" id="_dlcWindow">
+  <object class="GtkWindow" id="DlcWindow">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Ryujinx - DLC Manager</property>
     <property name="modal">True</property>
@@ -87,14 +87,13 @@
                 <property name="margin_bottom">10</property>
                 <property name="layout_style">start</property>
                 <child>
-                  <object class="GtkButton" id="_addUpdate">
+                  <object class="GtkButton" id="_addDlc">
                     <property name="label" translatable="yes">Add</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Adds an update to this list</property>
+                    <property name="tooltip_text" translatable="yes">Adds an dlc to this list</property>
                     <property name="margin_left">10</property>
-                    <signal name="clicked" handler="AddButton_Clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -103,14 +102,13 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="_removeUpdate">
+                  <object class="GtkButton" id="_removeDlc">
                     <property name="label" translatable="yes">Remove</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Removes the selected update</property>
+                    <property name="tooltip_text" translatable="yes">Removes the selected dlc</property>
                     <property name="margin_left">10</property>
-                    <signal name="clicked" handler="RemoveButton_Clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -141,7 +139,6 @@
                     <property name="margin_right">10</property>
                     <property name="margin_top">2</property>
                     <property name="margin_bottom">2</property>
-                    <signal name="clicked" handler="SaveButton_Clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -158,7 +155,6 @@
                     <property name="margin_right">10</property>
                     <property name="margin_top">2</property>
                     <property name="margin_bottom">2</property>
-                    <signal name="clicked" handler="CancelButton_Clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>

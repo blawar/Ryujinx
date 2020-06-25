@@ -1,15 +1,15 @@
 ﻿using DiscordRPC;
-using Ryujinx.Common;
+using Ryujinx.Configuration;
 using System;
 using System.Linq;
 
-namespace Ryujinx.Configuration
+namespace Ryujinx.Common
 {
-    static class DiscordIntegrationModule
+    public static class DiscordIntegrationModule
     {
         private static DiscordRpcClient _discordClient;
 
-        private static string LargeDescription = "Ryujinx is a Nintendo Switch emulator.";
+        private const string LargeDescription = "Ryujinx is a Nintendo Switch emulator.";
 
         public static RichPresence DiscordPresence { get; private set; }
 

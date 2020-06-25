@@ -5,7 +5,9 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using Ryujinx.Configuration;
+using Ryujinx.Common;
 using Ryujinx.Common.Configuration.Hid;
+using Ryujinx.Graphics.Gpu;
 using Ryujinx.Graphics.OpenGL;
 using Ryujinx.HLE;
 using Ryujinx.HLE.HOS.Services.Hid;
@@ -17,6 +19,8 @@ namespace Ryujinx.Ui
 {
     public class GlRenderer : GLWidget
     {
+        private readonly GtkUserInterface _gtkUserInterface;
+
         private const int SwitchPanelWidth  = 1280;
         private const int SwitchPanelHeight = 720;
         private const int TargetFps         = 60;
@@ -47,13 +51,14 @@ namespace Ryujinx.Ui
 
         private HotkeyButtons _prevHotkeyButtons;
 
-        public GlRenderer(Switch device)
+        public GlRenderer(Switch device, GtkUserInterface gtkUserInterface)
             : base (GetGraphicsMode(),
             3, 3,
             GraphicsContextFlags.ForwardCompatible)
         {
             WaitEvent = new ManualResetEvent(false);
 
+            _gtkUserInterface = gtkUserInterface;
             _device = device;
 
             this.Initialized  += GLRenderer_Initialized;
@@ -128,7 +133,7 @@ namespace Ryujinx.Ui
                     {
                         if (keyboard.IsKeyDown(OpenTK.Input.Key.Escape))
                         {
-                            if (GtkDialog.CreateExitDialog())
+                            if (_gtkUserInterface.ShowConfirmationDialog("Are you sure you want to stop emulation?", "All unsaved data will be lost"))
                             {
                                 Exit();
                             }
@@ -192,7 +197,7 @@ namespace Ryujinx.Ui
 
                 string titleArchSection = _device.Application.TitleIs64Bit ? " (64-bit)" : " (32-bit)";
 
-                parent.Title = $"Ryujinx {Program.Version}{titleNameSection}{titleVersionSection}{titleIdSection}{titleArchSection}";
+                parent.Title = $"Ryujinx {Constants.Version}{titleNameSection}{titleVersionSection}{titleIdSection}{titleArchSection}";
             });
 
             Thread renderLoopThread = new Thread(Render)
@@ -327,18 +332,19 @@ namespace Ryujinx.Ui
                     _device.ProcessFrame();
                 }
 
-                string dockedMode = ConfigurationState.Instance.System.EnableDockedMode ? "Docked" : "Handheld";
-                float scale = Graphics.Gpu.GraphicsConfig.ResScale;
-                if (scale != 1)
-                {
-                    dockedMode += $" ({scale}x)";
-                }
-
                 if (_ticks >= _ticksPerFrame)
                 {
                     _device.PresentFrame(SwapBuffers);
 
                     _device.Statistics.RecordSystemFrameTime();
+
+                    string dockedMode = ConfigurationState.Instance.System.EnableDockedMode ? "Docked" : "Handheld";
+                    float  scale      = GraphicsConfig.ResScale;
+
+                    if (scale != 1)
+                    {
+                        dockedMode += $" ({scale}x)";
+                    }
 
                     StatusUpdatedEvent?.Invoke(this, new StatusUpdatedEventArgs(
                         _device.EnableDeviceVsync,

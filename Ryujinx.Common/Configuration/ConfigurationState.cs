@@ -11,6 +11,8 @@ namespace Ryujinx.Configuration
 {
     public class ConfigurationState
     {
+        public static string ConfigurationPath { get; set; }
+
         /// <summary>
         /// UI configuration section
         /// </summary>
@@ -517,7 +519,7 @@ namespace Ryujinx.Configuration
             };
         }
 
-        public void Load(ConfigurationFileFormat configurationFileFormat, string configurationFilePath)
+        public void Load(ConfigurationFileFormat configurationFileFormat)
         {
             bool configurationFileUpdated = false;
 
@@ -729,7 +731,7 @@ namespace Ryujinx.Configuration
 
             if (configurationFileUpdated)
             {
-                ToFileFormat().SaveConfig(configurationFilePath);
+                ToFileFormat().SaveConfig(ConfigurationPath);
 
                 Common.Logging.Logger.PrintWarning(LogClass.Application, "Configuration file has been updated!");
             }

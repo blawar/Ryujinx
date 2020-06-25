@@ -26,6 +26,7 @@ namespace Ryujinx.Ui
 {
     public class GameTableContextMenu : Menu
     {
+        private readonly GtkUserInterface  _gtkUserInterface;
         private readonly ListStore         _gameTableStore;
         private readonly TreeIter          _rowIter;
         private readonly VirtualFileSystem _virtualFileSystem;
@@ -35,8 +36,9 @@ namespace Ryujinx.Ui
         private MessageDialog _dialog;
         private bool          _cancel;
 
-        public GameTableContextMenu(ListStore gameTableStore, BlitStruct<ApplicationControlProperty> controlData, TreeIter rowIter, VirtualFileSystem virtualFileSystem)
+        public GameTableContextMenu(GtkUserInterface gtkUserInterface, ListStore gameTableStore, BlitStruct<ApplicationControlProperty> controlData, TreeIter rowIter, VirtualFileSystem virtualFileSystem)
         {
+            _gtkUserInterface  = gtkUserInterface;
             _gameTableStore    = gameTableStore;
             _rowIter           = rowIter;
             _virtualFileSystem = virtualFileSystem;
@@ -194,7 +196,7 @@ namespace Ryujinx.Ui
 
                 if (result.IsFailure())
                 {
-                    GtkDialog.CreateErrorDialog($"There was an error creating the specified savedata: {result.ToStringWithName()}");
+                    _gtkUserInterface.ShowErrorDialog($"There was an error creating the specified savedata: {result.ToStringWithName()}");
 
                     return false;
                 }
@@ -210,7 +212,7 @@ namespace Ryujinx.Ui
                 return true;
             }
 
-            GtkDialog.CreateErrorDialog($"There was an error finding the specified savedata: {result.ToStringWithName()}");
+            _gtkUserInterface.ShowErrorDialog($"There was an error finding the specified savedata: {result.ToStringWithName()}");
 
             return false;
         }
@@ -332,7 +334,7 @@ namespace Ryujinx.Ui
 
                             Gtk.Application.Invoke(delegate
                             {
-                                GtkDialog.CreateErrorDialog("Extraction failed. The main NCA was not present in the selected file.");
+                                _gtkUserInterface.ShowErrorDialog("Extraction failed. The main NCA was not present in the selected file.");
                             });
 
                             return;
@@ -395,7 +397,7 @@ namespace Ryujinx.Ui
                                 {
                                     _dialog?.Dispose();
 
-                                    GtkDialog.CreateErrorDialog("Extraction failed. Read the log file for further information.");
+                                    _gtkUserInterface.ShowErrorDialog("Extraction failed. Read the log file for further information.");
                                 });
                             }
                             else if (resultCode.Value.IsSuccess())
@@ -517,7 +519,6 @@ namespace Ryujinx.Ui
             return Result.Success;
         }
 
-        // Events
         private void OpenSaveUserDir_Clicked(object sender, EventArgs args)
         {
             string titleName = _gameTableStore.GetValue(_rowIter, 2).ToString().Split("\n")[0];
@@ -525,7 +526,7 @@ namespace Ryujinx.Ui
 
             if (!ulong.TryParse(titleId, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out ulong titleIdNumber))
             {
-                GtkDialog.CreateErrorDialog("UI error: The selected game did not have a valid title ID");
+                _gtkUserInterface.ShowErrorDialog("The selected game did not have a valid title ID");
 
                 return;
             }
@@ -562,7 +563,7 @@ namespace Ryujinx.Ui
 
             if (!ulong.TryParse(titleId, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out ulong titleIdNumber))
             {
-                GtkDialog.CreateErrorDialog("UI error: The selected game did not have a valid title ID");
+                _gtkUserInterface.ShowErrorDialog("The selected game did not have a valid title ID");
 
                 return;
             }
@@ -580,7 +581,7 @@ namespace Ryujinx.Ui
 
             if (!ulong.TryParse(titleId, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out ulong titleIdNumber))
             {
-                GtkDialog.CreateErrorDialog("UI error: The selected game did not have a valid title ID");
+                _gtkUserInterface.ShowErrorDialog("The selected game did not have a valid title ID");
 
                 return;
             }
@@ -596,7 +597,7 @@ namespace Ryujinx.Ui
             string titleName = _gameTableStore.GetValue(_rowIter, 2).ToString().Split("\n")[0];
             string titleId   = _gameTableStore.GetValue(_rowIter, 2).ToString().Split("\n")[1].ToLower();
 
-            TitleUpdateWindow titleUpdateWindow = new TitleUpdateWindow(titleId, titleName, _virtualFileSystem);
+            TitleUpdateWindow titleUpdateWindow = new TitleUpdateWindow(_gtkUserInterface, titleId, titleName, _virtualFileSystem);
             titleUpdateWindow.Show();
         }
 
@@ -605,7 +606,7 @@ namespace Ryujinx.Ui
             string titleName = _gameTableStore.GetValue(_rowIter, 2).ToString().Split("\n")[0];
             string titleId   = _gameTableStore.GetValue(_rowIter, 2).ToString().Split("\n")[1].ToLower();
 
-            DlcWindow dlcWindow = new DlcWindow(titleId, titleName, _virtualFileSystem);
+            DlcWindow dlcWindow = new DlcWindow(_gtkUserInterface, titleId, titleName, _virtualFileSystem);
             dlcWindow.Show();
         }
 

@@ -10,7 +10,7 @@ namespace Ryujinx.Ui
 {
     internal class Migration
     {
-        private VirtualFileSystem _virtualFileSystem;
+        private readonly VirtualFileSystem _virtualFileSystem;
 
         public Migration(VirtualFileSystem virtualFileSystem)
         {
@@ -47,14 +47,14 @@ namespace Ryujinx.Ui
             return dialogResponse == (int)ResponseType.Yes;
         }
 
-        public static bool DoMigrationForStartup(MainWindow parentWindow, VirtualFileSystem virtualFileSystem)
+        public static bool DoMigrationForStartup(VirtualFileSystem virtualFileSystem, Action<string> showErrorDialog)
         {
             try
             {
                 Migration migration = new Migration(virtualFileSystem);
                 int saveCount = migration.Migrate();
 
-                using MessageDialog dialogSuccess = new MessageDialog(parentWindow, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, null)
+                using MessageDialog dialogSuccess = new MessageDialog(null, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, null)
                 {
                     Title = "Migration Success",
                     Icon = new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.Icon.png"),
@@ -67,7 +67,7 @@ namespace Ryujinx.Ui
             }
             catch (HorizonResultException ex)
             {
-                GtkDialog.CreateErrorDialog(ex.Message);
+                showErrorDialog(ex.Message);
 
                 return false;
             }

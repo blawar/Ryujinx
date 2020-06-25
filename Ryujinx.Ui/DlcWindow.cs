@@ -6,36 +6,47 @@ using LibHac.Fs;
 using LibHac.FsSystem;
 using Ryujinx.Common.Configuration;
 using Ryujinx.Common.Logging;
+using Ryujinx.Common.Utilities;
 using Ryujinx.HLE.FileSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-using GUI        = Gtk.Builder.ObjectAttribute;
-using JsonHelper = Ryujinx.Common.Utilities.JsonHelper;
-
 namespace Ryujinx.Ui
 {
     public class DlcWindow : Window
     {
+        private readonly GtkUserInterface   _gtkUserInterface;
         private readonly VirtualFileSystem  _virtualFileSystem;
         private readonly string             _titleId;
         private readonly string             _dlcJsonPath;
         private readonly List<DlcContainer> _dlcContainerList;
 
 #pragma warning disable CS0649, IDE0044
-        [GUI] Label         _baseTitleInfoLabel;
-        [GUI] TreeView      _dlcTreeView;
-        [GUI] TreeSelection _dlcTreeSelection;
+        [Builder.Object] Label         _baseTitleInfoLabel;
+        [Builder.Object] TreeView      _dlcTreeView;
+        [Builder.Object] TreeSelection _dlcTreeSelection;
+        [Builder.Object] Button        _addDlc;
+        [Builder.Object] Button        _removeDlc;
+        [Builder.Object] Button        _saveButton;
+        [Builder.Object] Button        _cancelButton;
 #pragma warning restore CS0649, IDE0044
 
-        public DlcWindow(string titleId, string titleName, VirtualFileSystem virtualFileSystem) : this(new Builder("Ryujinx.Ui.DlcWindow.glade"), titleId, titleName, virtualFileSystem) { }
+        public DlcWindow(GtkUserInterface gtkUserInterface, string titleId, string titleName, VirtualFileSystem virtualFileSystem) 
+            : this(new Builder("Ryujinx.Ui.DlcWindow.glade"), gtkUserInterface, titleId, titleName, virtualFileSystem) { }
 
-        private DlcWindow(Builder builder, string titleId, string titleName, VirtualFileSystem virtualFileSystem) : base(builder.GetObject("_dlcWindow").Handle)
+        private DlcWindow( Builder builder, GtkUserInterface gtkUserInterface, string titleId, string titleName, VirtualFileSystem virtualFileSystem) 
+            : base(builder.GetObject("DlcWindow").Handle)
         {
             builder.Autoconnect(this);
 
+            _addDlc.Clicked       += AddButton_Clicked;
+            _removeDlc.Clicked    += RemoveButton_Clicked;
+            _saveButton.Clicked   += SaveButton_Clicked;
+            _cancelButton.Clicked += (sender, args) => this.Dispose();
+
+            _gtkUserInterface        = gtkUserInterface;
             _titleId                 = titleId;
             _virtualFileSystem       = virtualFileSystem;
             _dlcJsonPath             = System.IO.Path.Combine(virtualFileSystem.GetBasePath(), "games", _titleId, "dlc.json");
@@ -107,13 +118,13 @@ namespace Ryujinx.Ui
             {
                 Logger.PrintError(LogClass.Application, $"{exception.Message}. Errored File: {containerPath}");
 
-                GtkDialog.CreateInfoDialog("Ryujinx - Error", "Add DLC Failed!", "The NCA header content type check has failed. This is usually because the header key is incorrect or missing.");
+                _gtkUserInterface.ShowInfoDialog("Add DLC Failed!", "The NCA header content type check has failed. This is usually because the header key is incorrect or missing.");
             }
             catch (MissingKeyException exception)
             {
                 Logger.PrintError(LogClass.Application, $"Your key set is missing a key with the name: {exception.Name}. Errored File: {containerPath}");
 
-                GtkDialog.CreateInfoDialog("Ryujinx - Error", "Add DLC Failed!", $"Your key set is missing a key with the name: {exception.Name}");
+                _gtkUserInterface.ShowInfoDialog("Add DLC Failed!", $"Your key set is missing a key with the name: {exception.Name}");
             }
 
             return null;
@@ -171,7 +182,7 @@ namespace Ryujinx.Ui
 
                         if (!containsDlc)
                         {
-                            GtkDialog.CreateErrorDialog("The specified file does not contain a DLC for the selected title!");
+                            _gtkUserInterface.ShowErrorDialog("The specified file does not contain a DLC for the selected title!");
                         }
                     }
                 }
@@ -233,11 +244,6 @@ namespace Ryujinx.Ui
                 dlcJsonStream.Write(Encoding.UTF8.GetBytes(JsonHelper.Serialize(_dlcContainerList, true)));
             }
 
-            Dispose();
-        }
-
-        private void CancelButton_Clicked(object sender, EventArgs args)
-        {
             Dispose();
         }
     }

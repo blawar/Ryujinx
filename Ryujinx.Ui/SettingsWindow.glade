@@ -35,7 +35,7 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
-  <object class="GtkWindow" id="_settingsWin">
+  <object class="GtkWindow" id="SettingsWindow">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Ryujinx - Settings</property>
     <property name="modal">True</property>
@@ -214,7 +214,7 @@
                                       <object class="GtkEntry" id="_addGameDirBox">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="tooltip_text" translatable="yes">Enter a game directroy to add to the list</property>
+                                        <property name="tooltip_text" translatable="yes">Enter a game directory to add to the list</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -223,7 +223,7 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkToggleButton" id="_addDir">
+                                      <object class="GtkButton" id="_addDirectory">
                                         <property name="label" translatable="yes">Add</property>
                                         <property name="width_request">80</property>
                                         <property name="visible">True</property>
@@ -231,7 +231,6 @@
                                         <property name="receives_default">True</property>
                                         <property name="tooltip_text" translatable="yes"> Add a game directory to the list</property>
                                         <property name="margin_left">5</property>
-                                        <signal name="toggled" handler="AddDir_Pressed" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -240,7 +239,7 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkToggleButton" id="_removeDir">
+                                      <object class="GtkButton" id="_removeDirectory">
                                         <property name="label" translatable="yes">Remove</property>
                                         <property name="width_request">80</property>
                                         <property name="visible">True</property>
@@ -248,7 +247,6 @@
                                         <property name="receives_default">True</property>
                                         <property name="tooltip_text" translatable="yes">Remove selected game directory</property>
                                         <property name="margin_left">5</property>
-                                        <signal name="toggled" handler="RemoveDir_Pressed" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -324,7 +322,7 @@
                                 <property name="margin_right">10</property>
                                 <property name="orientation">vertical</property>
                                 <child>
-                                  <object class="GtkCheckButton" id="_custThemeToggle">
+                                  <object class="GtkCheckButton" id="_customThemeToggle">
                                     <property name="label" translatable="yes">Use Custom Theme</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -332,7 +330,6 @@
                                     <property name="tooltip_text" translatable="yes">Enable or disable custom themes in the GUI</property>
                                     <property name="halign">start</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="CustThemeToggle_Activated" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -373,7 +370,7 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkToggleButton" id="_browseThemePath">
+                                      <object class="GtkButton" id="_browseThemePath">
                                         <property name="label" translatable="yes">Browse...</property>
                                         <property name="width_request">80</property>
                                         <property name="visible">True</property>
@@ -381,7 +378,6 @@
                                         <property name="receives_default">True</property>
                                         <property name="tooltip_text" translatable="yes">Browse for a custom GUI theme</property>
                                         <property name="margin_left">5</property>
-                                        <signal name="toggled" handler="BrowseThemeDir_Pressed" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -516,7 +512,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkToggleButton" id="_configureController1">
+                                  <object class="GtkButton" id="_configureController1">
                                     <property name="label" translatable="yes">Configure</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -558,7 +554,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkToggleButton" id="_configureController3">
+                                  <object class="GtkButton" id="_configureController3">
                                     <property name="label" translatable="yes">Configure</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -600,7 +596,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkToggleButton" id="_configureController2">
+                                  <object class="GtkButton" id="_configureController2">
                                     <property name="label" translatable="yes">Configure</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -642,7 +638,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkToggleButton" id="_configureControllerH">
+                                  <object class="GtkButton" id="_configureControllerH">
                                     <property name="label" translatable="yes">Configure</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -684,7 +680,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkToggleButton" id="_configureController6">
+                                  <object class="GtkButton" id="_configureController6">
                                     <property name="label" translatable="yes">Configure</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -726,7 +722,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkToggleButton" id="_configureController5">
+                                  <object class="GtkButton" id="_configureController5">
                                     <property name="label" translatable="yes">Configure</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -768,7 +764,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkToggleButton" id="_configureController7">
+                                  <object class="GtkButton" id="_configureController7">
                                     <property name="label" translatable="yes">Configure</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -810,7 +806,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkToggleButton" id="_configureController4">
+                                  <object class="GtkButton" id="_configureController4">
                                     <property name="label" translatable="yes">Configure</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -852,7 +848,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkToggleButton" id="_configureController8">
+                                  <object class="GtkButton" id="_configureController8">
                                     <property name="label" translatable="yes">Configure</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -1462,51 +1458,50 @@
                                     <property name="position">7</property>
                                   </packing>
                                 </child>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkBox" id="AudioBackendBox">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <child>
-                                  <object class="GtkLabel">
+                                  <object class="GtkBox" id="AudioBackendBox">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="tooltip_text" translatable="yes">Change System Region</property>
-                                    <property name="halign">end</property>
-                                    <property name="label" translatable="yes">Audio Backend: </property>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="tooltip_text" translatable="yes">Change System Region</property>
+                                        <property name="halign">end</property>
+                                        <property name="label" translatable="yes">Audio Backend: </property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="padding">5</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkComboBoxText" id="_audioBackendSelect">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="tooltip_text" translatable="yes">Change Audio Backend</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">3</property>
+                                      </packing>
+                                    </child>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">True</property>
                                     <property name="padding">5</property>
-                                    <property name="position">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkComboBoxText" id="_audioBackendSelect">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="tooltip_text" translatable="yes">Change Audio Backend</property>
-                                    <property name="margin_left">5</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">3</property>
+                                    <property name="position">8</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
+                                <property name="expand">True</property>
                                 <property name="fill">True</property>
-                                <property name="padding">5</property>
-                                <property name="position">2</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
@@ -1724,8 +1719,8 @@
                                         <property name="tooltip_text" translatable="yes">Floating point resolution scale, such as 1.5. Non-integral scales are more likely to cause issues or crash.</property>
                                         <property name="valign">center</property>
                                         <property name="caps_lock_warning">False</property>
-                                        <property name="placeholder-text">1.0</property>
-                                        <property name="input-purpose">GTK_INPUT_PURPOSE_NUMBER</property>
+                                        <property name="placeholder_text">1.0</property>
+                                        <property name="input_purpose">number</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -1989,7 +1984,6 @@
                                     <property name="tooltip_text" translatable="yes">Opens the folder where logs are written to.</property>
                                     <property name="halign">start</property>
                                     <property name="margin_bottom">10</property>
-                                    <signal name="clicked" handler="OpenLogsFolder_Pressed" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2214,12 +2208,11 @@
             <property name="margin_bottom">3</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkToggleButton" id="SaveToggle">
+              <object class="GtkButton" id="_saveButton">
                 <property name="label" translatable="yes">Save</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="toggled" handler="SaveToggle_Activated" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -2228,13 +2221,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToggleButton" id="CloseToggle">
+              <object class="GtkButton" id="_closeButton">
                 <property name="label" translatable="yes">Close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="margin_left">4</property>
-                <signal name="toggled" handler="CloseToggle_Activated" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>

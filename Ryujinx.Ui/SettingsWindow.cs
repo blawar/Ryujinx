@@ -12,94 +12,102 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-using GUI = Gtk.Builder.ObjectAttribute;
-
 namespace Ryujinx.Ui
 {
     public class SettingsWindow : Window
     {
-        private static ListStore         _gameDirsBoxStore;
-        private static VirtualFileSystem _virtualFileSystem;
+        private readonly GtkUserInterface _gtkUserInterface;
+        private readonly ListStore        _gameDirsBoxStore;
 
         private long _systemTimeOffset;
 
 #pragma warning disable CS0649, IDE0044
-        [GUI] CheckButton  _errorLogToggle;
-        [GUI] CheckButton  _warningLogToggle;
-        [GUI] CheckButton  _infoLogToggle;
-        [GUI] CheckButton  _stubLogToggle;
-        [GUI] CheckButton  _debugLogToggle;
-        [GUI] CheckButton  _fileLogToggle;
-        [GUI] CheckButton  _guestLogToggle;
-        [GUI] CheckButton  _fsAccessLogToggle;
-        [GUI] Adjustment   _fsLogSpinAdjustment;
-        [GUI] CheckButton  _dockedModeToggle;
-        [GUI] CheckButton  _discordToggle;
-        [GUI] CheckButton  _vSyncToggle;
-        [GUI] CheckButton  _multiSchedToggle;
-        [GUI] CheckButton  _ptcToggle;
-        [GUI] CheckButton  _fsicToggle;
-        [GUI] CheckButton  _ignoreToggle;
-        [GUI] CheckButton  _directKeyboardAccess;
-        [GUI] ComboBoxText _systemLanguageSelect;
-        [GUI] ComboBoxText _systemRegionSelect;
-        [GUI] ComboBoxText _systemTimeZoneSelect;
-        [GUI] ComboBoxText _audioBackendSelect;
-        [GUI] SpinButton   _systemTimeYearSpin;
-        [GUI] SpinButton   _systemTimeMonthSpin;
-        [GUI] SpinButton   _systemTimeDaySpin;
-        [GUI] SpinButton   _systemTimeHourSpin;
-        [GUI] SpinButton   _systemTimeMinuteSpin;
-        [GUI] Adjustment   _systemTimeYearSpinAdjustment;
-        [GUI] Adjustment   _systemTimeMonthSpinAdjustment;
-        [GUI] Adjustment   _systemTimeDaySpinAdjustment;
-        [GUI] Adjustment   _systemTimeHourSpinAdjustment;
-        [GUI] Adjustment   _systemTimeMinuteSpinAdjustment;
-        [GUI] CheckButton  _custThemeToggle;
-        [GUI] Entry        _custThemePath;
-        [GUI] ToggleButton _browseThemePath;
-        [GUI] Label        _custThemePathLabel;
-        [GUI] TreeView     _gameDirsBox;
-        [GUI] Entry        _addGameDirBox;
-        [GUI] Entry        _graphicsShadersDumpPath;
-        [GUI] ComboBoxText _anisotropy;
-        [GUI] ComboBoxText _resScaleCombo;
-        [GUI] Entry        _resScaleText;
-        [GUI] ToggleButton _configureController1;
-        [GUI] ToggleButton _configureController2;
-        [GUI] ToggleButton _configureController3;
-        [GUI] ToggleButton _configureController4;
-        [GUI] ToggleButton _configureController5;
-        [GUI] ToggleButton _configureController6;
-        [GUI] ToggleButton _configureController7;
-        [GUI] ToggleButton _configureController8;
-        [GUI] ToggleButton _configureControllerH;
+        [Builder.Object] CheckButton  _errorLogToggle;
+        [Builder.Object] CheckButton  _warningLogToggle;
+        [Builder.Object] CheckButton  _infoLogToggle;
+        [Builder.Object] CheckButton  _stubLogToggle;
+        [Builder.Object] CheckButton  _debugLogToggle;
+        [Builder.Object] CheckButton  _fileLogToggle;
+        [Builder.Object] CheckButton  _guestLogToggle;
+        [Builder.Object] CheckButton  _fsAccessLogToggle;
+        [Builder.Object] Adjustment   _fsLogSpinAdjustment;
+        [Builder.Object] CheckButton  _dockedModeToggle;
+        [Builder.Object] CheckButton  _discordToggle;
+        [Builder.Object] CheckButton  _vSyncToggle;
+        [Builder.Object] CheckButton  _multiSchedToggle;
+        [Builder.Object] CheckButton  _ptcToggle;
+        [Builder.Object] CheckButton  _fsicToggle;
+        [Builder.Object] CheckButton  _ignoreToggle;
+        [Builder.Object] CheckButton  _directKeyboardAccess;
+        [Builder.Object] ComboBoxText _systemLanguageSelect;
+        [Builder.Object] ComboBoxText _systemRegionSelect;
+        [Builder.Object] ComboBoxText _systemTimeZoneSelect;
+        [Builder.Object] ComboBoxText _audioBackendSelect;
+        [Builder.Object] SpinButton   _systemTimeYearSpin;
+        [Builder.Object] SpinButton   _systemTimeMonthSpin;
+        [Builder.Object] SpinButton   _systemTimeDaySpin;
+        [Builder.Object] SpinButton   _systemTimeHourSpin;
+        [Builder.Object] SpinButton   _systemTimeMinuteSpin;
+        [Builder.Object] Adjustment   _systemTimeYearSpinAdjustment;
+        [Builder.Object] Adjustment   _systemTimeMonthSpinAdjustment;
+        [Builder.Object] Adjustment   _systemTimeDaySpinAdjustment;
+        [Builder.Object] Adjustment   _systemTimeHourSpinAdjustment;
+        [Builder.Object] Adjustment   _systemTimeMinuteSpinAdjustment;
+        [Builder.Object] CheckButton  _customThemeToggle;
+        [Builder.Object] Entry        _custThemePath;
+        [Builder.Object] Button       _browseThemePath;
+        [Builder.Object] Label        _custThemePathLabel;
+        [Builder.Object] TreeView     _gameDirsBox;
+        [Builder.Object] Entry        _addGameDirBox;
+        [Builder.Object] Button       _addDirectory;
+        [Builder.Object] Button       _removeDirectory;
+        [Builder.Object] Entry        _graphicsShadersDumpPath;
+        [Builder.Object] ComboBoxText _anisotropy;
+        [Builder.Object] ComboBoxText _resScaleCombo;
+        [Builder.Object] Entry        _resScaleText;
+        [Builder.Object] Button       _openLogsFolderButton;
+        [Builder.Object] Button       _configureController1;
+        [Builder.Object] Button       _configureController2;
+        [Builder.Object] Button       _configureController3;
+        [Builder.Object] Button       _configureController4;
+        [Builder.Object] Button       _configureController5;
+        [Builder.Object] Button       _configureController6;
+        [Builder.Object] Button       _configureController7;
+        [Builder.Object] Button       _configureController8;
+        [Builder.Object] Button       _configureControllerH;
+        [Builder.Object] Button       _saveButton;
+        [Builder.Object] Button       _closeButton;
 #pragma warning restore CS0649, IDE0044
 
-        public SettingsWindow(VirtualFileSystem virtualFileSystem, HLE.FileSystem.Content.ContentManager contentManager) : this(new Builder("Ryujinx.Ui.SettingsWindow.glade"), virtualFileSystem, contentManager) { }
+        public SettingsWindow(GtkUserInterface gtkUserInterface, VirtualFileSystem virtualFileSystem, HLE.FileSystem.Content.ContentManager contentManager) 
+            : this(new Builder("Ryujinx.Ui.SettingsWindow.glade"), gtkUserInterface, virtualFileSystem, contentManager) { }
 
-        private SettingsWindow(Builder builder, VirtualFileSystem virtualFileSystem, HLE.FileSystem.Content.ContentManager contentManager) : base(builder.GetObject("_settingsWin").Handle)
+        private SettingsWindow(Builder builder, GtkUserInterface gtkUserInterface, VirtualFileSystem virtualFileSystem, HLE.FileSystem.Content.ContentManager contentManager) 
+            : base(builder.GetObject("SettingsWindow").Handle)
         {
             builder.Autoconnect(this);
+            
+            _gtkUserInterface  = gtkUserInterface;
+            this.Icon          = new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.Icon.png");
 
-            this.Icon = new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.Icon.png");
+            _addDirectory.Clicked         += AddDirectory_Clicked;
+            _removeDirectory.Clicked      += RemoveDirectory_Clicked;
+            _customThemeToggle.Toggled    += CustomThemeToggle_Activated;
+            _browseThemePath.Clicked      += BrowseThemePath_Clicked;
+            _openLogsFolderButton.Clicked += OpenLogsFolder_Clicked;
+            _saveButton.Clicked           += SaveButton_Clicked;
+            _closeButton.Clicked          += (sender, args) => this.Dispose();
+            _configureController1.Clicked += (sender, args) => ConfigureController_Clicked(PlayerIndex.Player1);
+            _configureController2.Clicked += (sender, args) => ConfigureController_Clicked(PlayerIndex.Player2);
+            _configureController3.Clicked += (sender, args) => ConfigureController_Clicked(PlayerIndex.Player3);
+            _configureController4.Clicked += (sender, args) => ConfigureController_Clicked(PlayerIndex.Player4);
+            _configureController5.Clicked += (sender, args) => ConfigureController_Clicked(PlayerIndex.Player5);
+            _configureController6.Clicked += (sender, args) => ConfigureController_Clicked(PlayerIndex.Player6);
+            _configureController7.Clicked += (sender, args) => ConfigureController_Clicked(PlayerIndex.Player7);
+            _configureController8.Clicked += (sender, args) => ConfigureController_Clicked(PlayerIndex.Player8);
+            _configureControllerH.Clicked += (sender, args) => ConfigureController_Clicked(PlayerIndex.Handheld);
+            _resScaleCombo.Changed        += (sender, args) => _resScaleText.Visible = _resScaleCombo.ActiveId == "-1";
 
-            _virtualFileSystem = virtualFileSystem;
-
-            //Bind Events
-            _configureController1.Pressed += (sender, args) => ConfigureController_Pressed(sender, args, PlayerIndex.Player1);
-            _configureController2.Pressed += (sender, args) => ConfigureController_Pressed(sender, args, PlayerIndex.Player2);
-            _configureController3.Pressed += (sender, args) => ConfigureController_Pressed(sender, args, PlayerIndex.Player3);
-            _configureController4.Pressed += (sender, args) => ConfigureController_Pressed(sender, args, PlayerIndex.Player4);
-            _configureController5.Pressed += (sender, args) => ConfigureController_Pressed(sender, args, PlayerIndex.Player5);
-            _configureController6.Pressed += (sender, args) => ConfigureController_Pressed(sender, args, PlayerIndex.Player6);
-            _configureController7.Pressed += (sender, args) => ConfigureController_Pressed(sender, args, PlayerIndex.Player7);
-            _configureController8.Pressed += (sender, args) => ConfigureController_Pressed(sender, args, PlayerIndex.Player8);
-            _configureControllerH.Pressed += (sender, args) => ConfigureController_Pressed(sender, args, PlayerIndex.Handheld);
-
-            _resScaleCombo.Changed += (sender, args) => _resScaleText.Visible = _resScaleCombo.ActiveId == "-1";
-
-            //Setup Currents
             if (ConfigurationState.Instance.Logger.EnableFileLog)
             {
                 _fileLogToggle.Click();
@@ -182,7 +190,7 @@ namespace Ryujinx.Ui
 
             if (ConfigurationState.Instance.Ui.EnableCustomTheme)
             {
-                _custThemeToggle.Click();
+                _customThemeToggle.Click();
             }
 
             TimeZoneContentManager timeZoneContentManager = new TimeZoneContentManager();
@@ -227,7 +235,7 @@ namespace Ryujinx.Ui
                 _gameDirsBoxStore.AppendValues(gameDir);
             }
 
-            if (_custThemeToggle.Active == false)
+            if (_customThemeToggle.Active == false)
             {
                 _custThemePath.Sensitive      = false;
                 _custThemePathLabel.Sensitive = false;
@@ -298,7 +306,7 @@ namespace Ryujinx.Ui
             }
         }
 
-        private void AddDir_Pressed(object sender, EventArgs args)
+        private void AddDirectory_Clicked(object sender, EventArgs args)
         {
             if (Directory.Exists(_addGameDirBox.Buffer.Text))
             {
@@ -326,7 +334,8 @@ namespace Ryujinx.Ui
                                     directoryAdded = true;
                                     break;
                                 }
-                            } while(_gameDirsBoxStore.IterNext(ref treeIter));
+                            }
+                            while(_gameDirsBoxStore.IterNext(ref treeIter));
                         }
 
                         if (!directoryAdded)
@@ -340,11 +349,9 @@ namespace Ryujinx.Ui
             }
 
             _addGameDirBox.Buffer.Text = "";
-
-            ((ToggleButton)sender).SetStateFlags(0, true);
         }
 
-        private void RemoveDir_Pressed(object sender, EventArgs args)
+        private void RemoveDirectory_Clicked(object sender, EventArgs args)
         {
             TreeSelection selection = _gameDirsBox.Selection;
 
@@ -352,18 +359,16 @@ namespace Ryujinx.Ui
             {
                 _gameDirsBoxStore.Remove(ref treeIter);
             }
-
-            ((ToggleButton)sender).SetStateFlags(0, true);
         }
 
-        private void CustThemeToggle_Activated(object sender, EventArgs args)
+        private void CustomThemeToggle_Activated(object sender, EventArgs args)
         {
-            _custThemePath.Sensitive      = _custThemeToggle.Active;
-            _custThemePathLabel.Sensitive = _custThemeToggle.Active;
-            _browseThemePath.Sensitive    = _custThemeToggle.Active;
+            _custThemePath.Sensitive      = _customThemeToggle.Active;
+            _custThemePathLabel.Sensitive = _customThemeToggle.Active;
+            _browseThemePath.Sensitive    = _customThemeToggle.Active;
         }
 
-        private void BrowseThemeDir_Pressed(object sender, EventArgs args)
+        private void BrowseThemePath_Clicked(object sender, EventArgs args)
         {
             FileChooserDialog fileChooser = new FileChooserDialog("Choose the theme to load", this, FileChooserAction.Open, "Cancel", ResponseType.Cancel, "Select", ResponseType.Accept);
 
@@ -376,18 +381,16 @@ namespace Ryujinx.Ui
             }
 
             fileChooser.Dispose();
-
-            _browseThemePath.SetStateFlags(0, true);
         }
 
-        private void OpenLogsFolder_Pressed(object sender, EventArgs args)
+        private static void OpenLogsFolder_Clicked(object sender, EventArgs args)
         {
             string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
             
             DirectoryInfo directory = new DirectoryInfo(logPath);
             directory.Create();
             
-            Process.Start(new ProcessStartInfo()
+            Process.Start(new ProcessStartInfo
             {
                 FileName        = logPath,
                 UseShellExecute = true,
@@ -395,15 +398,13 @@ namespace Ryujinx.Ui
             });
         }
 
-        private void ConfigureController_Pressed(object sender, EventArgs args, PlayerIndex playerIndex)
+        private void ConfigureController_Clicked(PlayerIndex playerIndex)
         {
-            ((ToggleButton)sender).SetStateFlags(0, true);
-
-            ControllerWindow controllerWin = new ControllerWindow(playerIndex, _virtualFileSystem);
+            ControllerWindow controllerWin = new ControllerWindow(_gtkUserInterface, playerIndex);
             controllerWin.Show();
         }
 
-        private void SaveToggle_Activated(object sender, EventArgs args)
+        private void SaveButton_Clicked(object sender, EventArgs args)
         {
             List<string> gameDirs = new List<string>();
 
@@ -415,8 +416,7 @@ namespace Ryujinx.Ui
                 _gameDirsBoxStore.IterNext(ref treeIter);
             }
 
-            float resScaleCustom;
-            if (!float.TryParse(_resScaleText.Buffer.Text, out resScaleCustom) || resScaleCustom <= 0.0f)
+            if (!float.TryParse(_resScaleText.Buffer.Text, out float resScaleCustom) || resScaleCustom <= 0.0f)
             {
                 resScaleCustom = 1.0f;
             }
@@ -437,7 +437,7 @@ namespace Ryujinx.Ui
             ConfigurationState.Instance.System.EnableFsIntegrityChecks.Value   = _fsicToggle.Active;
             ConfigurationState.Instance.System.IgnoreMissingServices.Value     = _ignoreToggle.Active;
             ConfigurationState.Instance.Hid.EnableKeyboard.Value               = _directKeyboardAccess.Active;
-            ConfigurationState.Instance.Ui.EnableCustomTheme.Value             = _custThemeToggle.Active;
+            ConfigurationState.Instance.Ui.EnableCustomTheme.Value             = _customThemeToggle.Active;
             ConfigurationState.Instance.System.Language.Value                  = Enum.Parse<Language>(_systemLanguageSelect.ActiveId);
             ConfigurationState.Instance.System.Region.Value                    = Enum.Parse<Configuration.System.Region>(_systemRegionSelect.ActiveId);
             ConfigurationState.Instance.System.AudioBackend.Value              = Enum.Parse<AudioBackend>(_audioBackendSelect.ActiveId);
@@ -452,13 +452,8 @@ namespace Ryujinx.Ui
             ConfigurationState.Instance.Graphics.ResScaleCustom.Value          = resScaleCustom;
 
             MainWindow.SaveConfig();
-            MainWindow.UpdateGraphicsConfig();
+            _gtkUserInterface.InvokeGraphicsConfigUpdated();
             MainWindow.ApplyTheme();
-            Dispose();
-        }
-
-        private void CloseToggle_Activated(object sender, EventArgs args)
-        {
             Dispose();
         }
     }

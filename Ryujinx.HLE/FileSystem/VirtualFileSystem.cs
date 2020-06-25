@@ -4,6 +4,7 @@ using LibHac.Fs;
 using LibHac.FsService;
 using LibHac.FsSystem;
 using LibHac.Spl;
+using Ryujinx.Common;
 using Ryujinx.HLE.FileSystem.Content;
 using Ryujinx.HLE.HOS;
 using System;
@@ -13,7 +14,6 @@ namespace Ryujinx.HLE.FileSystem
 {
     public class VirtualFileSystem : IDisposable
     {
-        public const string BasePath   = "Ryujinx";
         public const string NandPath   = "bis";
         public const string SdCardPath = "sdcard";
         public const string SystemPath = "system";
@@ -207,12 +207,7 @@ namespace Ryujinx.HLE.FileSystem
             return new DriveInfo(Path.GetPathRoot(GetBasePath()));
         }
 
-        public string GetBasePath()
-        {
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-
-            return Path.Combine(appDataPath, BasePath);
-        }
+        public string GetBasePath() => Constants.BasePath;
 
         public void Reload()
         {

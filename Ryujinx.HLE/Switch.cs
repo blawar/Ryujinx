@@ -11,7 +11,6 @@ using Ryujinx.HLE.HOS.Services.Hid;
 using Ryujinx.HLE.HOS.SystemState;
 using Ryujinx.Memory;
 using System;
-using System.Threading;
 
 namespace Ryujinx.HLE
 {

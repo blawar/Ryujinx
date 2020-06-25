@@ -2,8 +2,6 @@ using Gtk;
 using System;
 using System.Reflection;
 
-using GUI = Gtk.Builder.ObjectAttribute;
-
 namespace Ryujinx.Ui
 {
     public class ProfileDialog : Dialog
@@ -11,23 +9,26 @@ namespace Ryujinx.Ui
         public string FileName { get; private set; }
 
 #pragma warning disable CS0649, IDE0044
-        [GUI] Entry _profileEntry;
-        [GUI] Label _errorMessage;
+        [Builder.Object] Entry  _profileEntry;
+        [Builder.Object] Label  _errorMessage;
+        [Builder.Object] Button _okButton;
+        [Builder.Object] Button _cancelButton;
 #pragma warning restore CS0649, IDE0044
 
         public ProfileDialog() : this(new Builder("Ryujinx.Ui.ProfileDialog.glade")) { }
 
-        private ProfileDialog(Builder builder) : base(builder.GetObject("_profileDialog").Handle)
+        private ProfileDialog(Builder builder) : base(builder.GetObject("ProfileDialog").Handle)
         {
             builder.Autoconnect(this);
 
             Icon = new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.Icon.png");
+
+            _okButton.Clicked     += OkButton_Clicked;
+            _cancelButton.Clicked += (sender, args) => Respond(ResponseType.Cancel);
         }
 
-        private void OkToggle_Activated(object sender, EventArgs args)
+        private void OkButton_Clicked(object sender, EventArgs args)
         {
-            ((ToggleButton)sender).SetStateFlags(0, true);
-
             bool validFileName = true;
 
             foreach (char invalidChar in System.IO.Path.GetInvalidFileNameChars())
@@ -48,11 +49,6 @@ namespace Ryujinx.Ui
             {
                 _errorMessage.Text = "The file name contains invalid characters. Please try again.";
             }
-        }
-
-        private void CancelToggle_Activated(object sender, EventArgs args)
-        {
-            Respond(ResponseType.Cancel);
         }
     }
 }

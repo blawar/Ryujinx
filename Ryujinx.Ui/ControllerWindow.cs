@@ -1,131 +1,144 @@
 using Gtk;
 using OpenTK.Input;
+using Ryujinx.Common;
 using Ryujinx.Common.Configuration.Hid;
 using Ryujinx.Common.Utilities;
 using Ryujinx.Configuration;
-using Ryujinx.HLE.FileSystem;
 using System;
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 
-using GUI = Gtk.Builder.ObjectAttribute;
 using Key = Ryujinx.Configuration.Hid.Key;
 
 namespace Ryujinx.Ui
 {
     public class ControllerWindow : Window
     {
-        private PlayerIndex       _playerIndex;
-        private InputConfig       _inputConfig;
-        private bool              _isWaitingForInput;
-        private VirtualFileSystem _virtualFileSystem;
+        private readonly GtkUserInterface _gtkUserInterface;
+        private readonly PlayerIndex      _playerIndex;
+        private readonly InputConfig      _inputConfig;
+
+        private bool _isWaitingForInput;
 
 #pragma warning disable CS0649, IDE0044
-        [GUI] Adjustment   _controllerDeadzoneLeft;
-        [GUI] Adjustment   _controllerDeadzoneRight;
-        [GUI] Adjustment   _controllerTriggerThreshold;
-        [GUI] ComboBoxText _inputDevice;
-        [GUI] ComboBoxText _profile;
-        [GUI] ToggleButton _refreshInputDevicesButton;
-        [GUI] Box          _settingsBox;
-        [GUI] Grid         _leftStickKeyboard;
-        [GUI] Grid         _leftStickController;
-        [GUI] Box          _deadZoneLeftBox;
-        [GUI] Grid         _rightStickKeyboard;
-        [GUI] Grid         _rightStickController;
-        [GUI] Box          _deadZoneRightBox;
-        [GUI] Grid         _leftSideTriggerBox;
-        [GUI] Grid         _rightSideTriggerBox;
-        [GUI] Box          _triggerThresholdBox;
-        [GUI] ComboBoxText _controllerType;
-        [GUI] ToggleButton _lStickX;
-        [GUI] CheckButton  _invertLStickX;
-        [GUI] ToggleButton _lStickY;
-        [GUI] CheckButton  _invertLStickY;
-        [GUI] ToggleButton _lStickUp;
-        [GUI] ToggleButton _lStickDown;
-        [GUI] ToggleButton _lStickLeft;
-        [GUI] ToggleButton _lStickRight;
-        [GUI] ToggleButton _lStickButton;
-        [GUI] ToggleButton _dpadUp;
-        [GUI] ToggleButton _dpadDown;
-        [GUI] ToggleButton _dpadLeft;
-        [GUI] ToggleButton _dpadRight;
-        [GUI] ToggleButton _minus;
-        [GUI] ToggleButton _l;
-        [GUI] ToggleButton _zL;
-        [GUI] ToggleButton _rStickX;
-        [GUI] CheckButton  _invertRStickX;
-        [GUI] ToggleButton _rStickY;
-        [GUI] CheckButton  _invertRStickY;
-        [GUI] ToggleButton _rStickUp;
-        [GUI] ToggleButton _rStickDown;
-        [GUI] ToggleButton _rStickLeft;
-        [GUI] ToggleButton _rStickRight;
-        [GUI] ToggleButton _rStickButton;
-        [GUI] ToggleButton _a;
-        [GUI] ToggleButton _b;
-        [GUI] ToggleButton _x;
-        [GUI] ToggleButton _y;
-        [GUI] ToggleButton _plus;
-        [GUI] ToggleButton _r;
-        [GUI] ToggleButton _zR;
-        [GUI] ToggleButton _lSl;
-        [GUI] ToggleButton _lSr;
-        [GUI] ToggleButton _rSl;
-        [GUI] ToggleButton _rSr;
-        [GUI] Image        _controllerImage;
+        [Builder.Object] Adjustment   _controllerDeadzoneLeft;
+        [Builder.Object] Adjustment   _controllerDeadzoneRight;
+        [Builder.Object] Adjustment   _controllerTriggerThreshold;
+        [Builder.Object] ComboBoxText _inputDevice;
+        [Builder.Object] ComboBoxText _profile;
+        [Builder.Object] Button       _loadProfile;
+        [Builder.Object] Button       _addProfile;
+        [Builder.Object] Button       _removeProfile;
+        [Builder.Object] Button       _refreshInputDevicesButton;
+        [Builder.Object] Box          _settingsBox;
+        [Builder.Object] Grid         _leftStickKeyboard;
+        [Builder.Object] Grid         _leftStickController;
+        [Builder.Object] Box          _deadZoneLeftBox;
+        [Builder.Object] Grid         _rightStickKeyboard;
+        [Builder.Object] Grid         _rightStickController;
+        [Builder.Object] Box          _deadZoneRightBox;
+        [Builder.Object] Grid         _leftSideTriggerBox;
+        [Builder.Object] Grid         _rightSideTriggerBox;
+        [Builder.Object] Box          _triggerThresholdBox;
+        [Builder.Object] ComboBoxText _controllerType;
+        [Builder.Object] ToggleButton _lStickX;
+        [Builder.Object] CheckButton  _invertLStickX;
+        [Builder.Object] ToggleButton _lStickY;
+        [Builder.Object] CheckButton  _invertLStickY;
+        [Builder.Object] ToggleButton _lStickUp;
+        [Builder.Object] ToggleButton _lStickDown;
+        [Builder.Object] ToggleButton _lStickLeft;
+        [Builder.Object] ToggleButton _lStickRight;
+        [Builder.Object] ToggleButton _lStickButton;
+        [Builder.Object] ToggleButton _dpadUp;
+        [Builder.Object] ToggleButton _dpadDown;
+        [Builder.Object] ToggleButton _dpadLeft;
+        [Builder.Object] ToggleButton _dpadRight;
+        [Builder.Object] ToggleButton _minus;
+        [Builder.Object] ToggleButton _l;
+        [Builder.Object] ToggleButton _zL;
+        [Builder.Object] ToggleButton _rStickX;
+        [Builder.Object] CheckButton  _invertRStickX;
+        [Builder.Object] ToggleButton _rStickY;
+        [Builder.Object] CheckButton  _invertRStickY;
+        [Builder.Object] ToggleButton _rStickUp;
+        [Builder.Object] ToggleButton _rStickDown;
+        [Builder.Object] ToggleButton _rStickLeft;
+        [Builder.Object] ToggleButton _rStickRight;
+        [Builder.Object] ToggleButton _rStickButton;
+        [Builder.Object] ToggleButton _a;
+        [Builder.Object] ToggleButton _b;
+        [Builder.Object] ToggleButton _x;
+        [Builder.Object] ToggleButton _y;
+        [Builder.Object] ToggleButton _plus;
+        [Builder.Object] ToggleButton _r;
+        [Builder.Object] ToggleButton _zR;
+        [Builder.Object] ToggleButton _lSl;
+        [Builder.Object] ToggleButton _lSr;
+        [Builder.Object] ToggleButton _rSl;
+        [Builder.Object] ToggleButton _rSr;
+        [Builder.Object] Image        _controllerImage;
+        [Builder.Object] Button       _saveButton;
+        [Builder.Object] Button       _closeButton;
 #pragma warning restore CS0649, IDE0044
 
-        public ControllerWindow(PlayerIndex controllerId, VirtualFileSystem virtualFileSystem) : this(new Builder("Ryujinx.Ui.ControllerWindow.glade"), controllerId, virtualFileSystem) { }
+        public ControllerWindow(GtkUserInterface gtkUserInterface, PlayerIndex controllerId) 
+            : this(new Builder("Ryujinx.Ui.ControllerWindow.glade"), gtkUserInterface, controllerId) { }
 
-        private ControllerWindow(Builder builder, PlayerIndex controllerId, VirtualFileSystem virtualFileSystem) : base(builder.GetObject("_controllerWin").Handle)
+        private ControllerWindow(Builder builder, GtkUserInterface gtkUserInterface, PlayerIndex controllerId) 
+            : base(builder.GetObject("ControllerWindow").Handle)
         {
             builder.Autoconnect(this);
 
-            this.Icon = new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.Icon.png");
-
+            _gtkUserInterface  = gtkUserInterface;
             _playerIndex       = controllerId;
-            _virtualFileSystem = virtualFileSystem;
             _inputConfig       = ConfigurationState.Instance.Hid.InputConfig.Value.Find(inputConfig => inputConfig.PlayerIndex == _playerIndex);
 
-            //Bind Events
-            _lStickX.Clicked        += Button_Pressed;
-            _lStickY.Clicked        += Button_Pressed;
-            _lStickUp.Clicked       += Button_Pressed;
-            _lStickDown.Clicked     += Button_Pressed;
-            _lStickLeft.Clicked     += Button_Pressed;
-            _lStickRight.Clicked    += Button_Pressed;
-            _lStickButton.Clicked   += Button_Pressed;
-            _dpadUp.Clicked         += Button_Pressed;
-            _dpadDown.Clicked       += Button_Pressed;
-            _dpadLeft.Clicked       += Button_Pressed;
-            _dpadRight.Clicked      += Button_Pressed;
-            _minus.Clicked          += Button_Pressed;
-            _l.Clicked              += Button_Pressed;
-            _zL.Clicked             += Button_Pressed;
-            _lSl.Clicked            += Button_Pressed;
-            _lSr.Clicked            += Button_Pressed;
-            _rStickX.Clicked        += Button_Pressed;
-            _rStickY.Clicked        += Button_Pressed;
-            _rStickUp.Clicked       += Button_Pressed;
-            _rStickDown.Clicked     += Button_Pressed;
-            _rStickLeft.Clicked     += Button_Pressed;
-            _rStickRight.Clicked    += Button_Pressed;
-            _rStickButton.Clicked   += Button_Pressed;
-            _a.Clicked              += Button_Pressed;
-            _b.Clicked              += Button_Pressed;
-            _x.Clicked              += Button_Pressed;
-            _y.Clicked              += Button_Pressed;
-            _plus.Clicked           += Button_Pressed;
-            _r.Clicked              += Button_Pressed;
-            _zR.Clicked             += Button_Pressed;
-            _rSl.Clicked            += Button_Pressed;
-            _rSr.Clicked            += Button_Pressed;
+            this.Icon = new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.Icon.png");
 
-            // Setup current values
+            _inputDevice.Changed               += InputDevice_Changed;
+            _refreshInputDevicesButton.Clicked += RefreshInputDevicesButton_Clicked;
+            _controllerType.Changed            += Controller_Changed;
+            _loadProfile.Clicked               += ProfileLoad_Clicked;
+            _addProfile.Clicked                += ProfileAdd_Clicked;
+            _removeProfile.Clicked             += ProfileRemove_Clicked;
+            _lStickX.Clicked                   += Button_Clicked;
+            _lStickY.Clicked                   += Button_Clicked;
+            _lStickUp.Clicked                  += Button_Clicked;
+            _lStickDown.Clicked                += Button_Clicked;
+            _lStickLeft.Clicked                += Button_Clicked;
+            _lStickRight.Clicked               += Button_Clicked;
+            _lStickButton.Clicked              += Button_Clicked;
+            _dpadUp.Clicked                    += Button_Clicked;
+            _dpadDown.Clicked                  += Button_Clicked;
+            _dpadLeft.Clicked                  += Button_Clicked;
+            _dpadRight.Clicked                 += Button_Clicked;
+            _minus.Clicked                     += Button_Clicked;
+            _l.Clicked                         += Button_Clicked;
+            _zL.Clicked                        += Button_Clicked;
+            _lSl.Clicked                       += Button_Clicked;
+            _lSr.Clicked                       += Button_Clicked;
+            _rStickX.Clicked                   += Button_Clicked;
+            _rStickY.Clicked                   += Button_Clicked;
+            _rStickUp.Clicked                  += Button_Clicked;
+            _rStickDown.Clicked                += Button_Clicked;
+            _rStickLeft.Clicked                += Button_Clicked;
+            _rStickRight.Clicked               += Button_Clicked;
+            _rStickButton.Clicked              += Button_Clicked;
+            _a.Clicked                         += Button_Clicked;
+            _b.Clicked                         += Button_Clicked;
+            _x.Clicked                         += Button_Clicked;
+            _y.Clicked                         += Button_Clicked;
+            _plus.Clicked                      += Button_Clicked;
+            _r.Clicked                         += Button_Clicked;
+            _zR.Clicked                        += Button_Clicked;
+            _rSl.Clicked                       += Button_Clicked;
+            _rSr.Clicked                       += Button_Clicked;
+            _saveButton.Clicked                += SaveButton_Clicked;
+            _closeButton.Clicked               += (sender, args) => this.Dispose();
+
             UpdateInputDeviceList();
             SetAvailableOptions();
 
@@ -217,60 +230,23 @@ namespace Ryujinx.Ui
                     break;
             }
 
-            switch (_controllerType.ActiveId)
+            _controllerImage.Pixbuf = _controllerType.ActiveId switch
             {
-                case "ProController":
-                    _controllerImage.Pixbuf = new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.ProCon.svg", 400, 400);
-                    break;
-                case "JoyconLeft":
-                    _controllerImage.Pixbuf = new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.JoyConLeft.svg", 400, 400);
-                    break;
-                case "JoyconRight":
-                    _controllerImage.Pixbuf = new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.JoyConRight.svg", 400, 400);
-                    break;
-                default:
-                    _controllerImage.Pixbuf = new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.JoyConPair.svg", 400, 400);
-                    break;
-            }
+                "ProController" => new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.ProCon.svg",      400, 400),
+                "JoyconLeft"    => new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.JoyConLeft.svg",  400, 400),
+                "JoyconRight"   => new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.JoyConRight.svg", 400, 400),
+                _               => new Gdk.Pixbuf(Assembly.GetExecutingAssembly(), "Ryujinx.Ui.assets.JoyConPair.svg",  400, 400),
+            };
         }
 
         private void ClearValues()
         {
-            _lStickX.Label                    = "Unbound";
-            _lStickY.Label                    = "Unbound";
-            _lStickUp.Label                   = "Unbound";
-            _lStickDown.Label                 = "Unbound";
-            _lStickLeft.Label                 = "Unbound";
-            _lStickRight.Label                = "Unbound";
-            _lStickButton.Label               = "Unbound";
-            _dpadUp.Label                     = "Unbound";
-            _dpadDown.Label                   = "Unbound";
-            _dpadLeft.Label                   = "Unbound";
-            _dpadRight.Label                  = "Unbound";
-            _minus.Label                      = "Unbound";
-            _l.Label                          = "Unbound";
-            _zL.Label                         = "Unbound";
-            _lSl.Label                        = "Unbound";
-            _lSr.Label                        = "Unbound";
-            _rStickX.Label                    = "Unbound";
-            _rStickY.Label                    = "Unbound";
-            _rStickUp.Label                   = "Unbound";
-            _rStickDown.Label                 = "Unbound";
-            _rStickLeft.Label                 = "Unbound";
-            _rStickRight.Label                = "Unbound";
-            _rStickButton.Label               = "Unbound";
-            _a.Label                          = "Unbound";
-            _b.Label                          = "Unbound";
-            _x.Label                          = "Unbound";
-            _y.Label                          = "Unbound";
-            _plus.Label                       = "Unbound";
-            _r.Label                          = "Unbound";
-            _zR.Label                         = "Unbound";
-            _rSl.Label                        = "Unbound";
-            _rSr.Label                        = "Unbound";
-            _controllerDeadzoneLeft.Value     = 0;
-            _controllerDeadzoneRight.Value    = 0;
-            _controllerTriggerThreshold.Value = 0;
+            _lStickX.Label = _lStickY.Label = _lStickUp.Label = _lStickDown.Label = _lStickLeft.Label = _lStickRight.Label = _lStickButton.Label =
+            _dpadUp.Label = _dpadDown.Label = _dpadLeft.Label = _dpadRight.Label = _minus.Label = _l.Label = _zL.Label = _lSl.Label = _lSr.Label =
+            _rStickX.Label = _rStickY.Label = _rStickUp.Label = _rStickDown.Label = _rStickLeft.Label = _rStickRight.Label = _rStickButton.Label =
+            _a.Label = _b.Label = _x.Label = _y.Label = _plus.Label = _r.Label = _zR.Label = _rSl.Label = _rSr.Label                             = "Unbound";
+
+            _controllerDeadzoneLeft.Value = _controllerDeadzoneRight.Value = _controllerTriggerThreshold.Value = 0;
         }
 
         private void SetValues(InputConfig config)
@@ -498,7 +474,7 @@ namespace Ryujinx.Ui
 
             if (!_inputDevice.ActiveId.StartsWith("disabled"))
             {
-                GtkDialog.CreateErrorDialog("Some fields entered where invalid and therefore your config was not saved.");
+                _gtkUserInterface.ShowErrorDialog("Some fields entered where invalid and therefore your config was not saved.");
             }
 
             return null;
@@ -574,7 +550,7 @@ namespace Ryujinx.Ui
 
         private string GetProfileBasePath()
         {
-            string path = System.IO.Path.Combine(_virtualFileSystem.GetBasePath(), "profiles");
+            string path = System.IO.Path.Combine(Constants.BasePath, "profiles");
 
             if (_inputDevice.ActiveId.StartsWith("keyboard"))
             {
@@ -588,7 +564,6 @@ namespace Ryujinx.Ui
             return path;
         }
 
-        //Events
         private void InputDevice_Changed(object sender, EventArgs args)
         {
             SetAvailableOptions();
@@ -602,14 +577,12 @@ namespace Ryujinx.Ui
             SetControllerSpecificFields();
         }
 
-        private void RefreshInputDevicesButton_Pressed(object sender, EventArgs args)
+        private void RefreshInputDevicesButton_Clicked(object sender, EventArgs args)
         {
             UpdateInputDeviceList();
-
-            _refreshInputDevicesButton.SetStateFlags(0, true);
         }
 
-        private void Button_Pressed(object sender, EventArgs args)
+        private void Button_Clicked(object sender, EventArgs args)
         {
             if (_isWaitingForInput)
             {
@@ -700,10 +673,8 @@ namespace Ryujinx.Ui
             }
         }
 
-        private void ProfileLoad_Activated(object sender, EventArgs args)
+        private void ProfileLoad_Clicked(object sender, EventArgs args)
         {
-            ((ToggleButton)sender).SetStateFlags(0, true);
-
             if (_inputDevice.ActiveId == "disabled" || _profile.ActiveId == null) return;
 
             InputConfig config = null;
@@ -836,10 +807,8 @@ namespace Ryujinx.Ui
             SetValues(config);
         }
 
-        private void ProfileAdd_Activated(object sender, EventArgs args)
+        private void ProfileAdd_Clicked(object sender, EventArgs args)
         {
-            ((ToggleButton)sender).SetStateFlags(0, true);
-
             if (_inputDevice.ActiveId == "disabled") return;
 
             InputConfig   inputConfig   = GetValues();
@@ -869,15 +838,11 @@ namespace Ryujinx.Ui
             SetProfiles();
         }
 
-        private void ProfileRemove_Activated(object sender, EventArgs args)
+        private void ProfileRemove_Clicked(object sender, EventArgs args)
         {
-            ((ToggleButton) sender).SetStateFlags(0, true);
-
             if (_inputDevice.ActiveId == "disabled" || _profile.ActiveId == "default" || _profile.ActiveId == null) return;
 
-            MessageDialog confirmDialog = GtkDialog.CreateConfirmationDialog("Deleting Profile", "This action is irreversible, are your sure you want to continue?");
-
-            if (confirmDialog.Run() == (int)ResponseType.Yes)
+            if (_gtkUserInterface.ShowConfirmationDialog("Deleting Profile", "This action is irreversible, are your sure you want to continue?"))
             {
                 string path = System.IO.Path.Combine(GetProfileBasePath(), _profile.ActiveId);
 
@@ -890,7 +855,7 @@ namespace Ryujinx.Ui
             }
         }
 
-        private void SaveToggle_Activated(object sender, EventArgs args)
+        private void SaveButton_Clicked(object sender, EventArgs args)
         {
             InputConfig inputConfig = GetValues();
 
@@ -914,11 +879,6 @@ namespace Ryujinx.Ui
 
             MainWindow.SaveConfig();
 
-            Dispose();
-        }
-
-        private void CloseToggle_Activated(object sender, EventArgs args)
-        {
             Dispose();
         }
     }

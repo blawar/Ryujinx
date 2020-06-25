@@ -1,12 +1,9 @@
 using LibHac;
 using LibHac.Common;
 using LibHac.Fs;
-using LibHac.Fs.Shim;
 using LibHac.FsSystem;
 using LibHac.FsSystem.NcaUtils;
-using LibHac.Ncm;
 using LibHac.Ns;
-using LibHac.Spl;
 using Ryujinx.Common.Logging;
 using Ryujinx.Common.Configuration;
 using Ryujinx.Configuration.System;
@@ -14,13 +11,11 @@ using Ryujinx.HLE.FileSystem;
 using Ryujinx.HLE.Loaders.Npdm;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
-using RightsId = LibHac.Fs.RightsId;
 using JsonHelper = Ryujinx.Common.Utilities.JsonHelper;
 
 namespace Ryujinx.Ui
@@ -30,11 +25,11 @@ namespace Ryujinx.Ui
         public static event EventHandler<ApplicationAddedEventArgs>        ApplicationAdded;
         public static event EventHandler<ApplicationCountUpdatedEventArgs> ApplicationCountUpdated;
 
-        private static readonly byte[] _nspIcon = GetResourceBytes("Ryujinx.Ui.assets.NSPIcon.png");
-        private static readonly byte[] _xciIcon = GetResourceBytes("Ryujinx.Ui.assets.XCIIcon.png");
-        private static readonly byte[] _ncaIcon = GetResourceBytes("Ryujinx.Ui.assets.NCAIcon.png");
-        private static readonly byte[] _nroIcon = GetResourceBytes("Ryujinx.Ui.assets.NROIcon.png");
-        private static readonly byte[] _nsoIcon = GetResourceBytes("Ryujinx.Ui.assets.NSOIcon.png");
+        private static readonly byte[] NspIcon = GetResourceBytes("Ryujinx.Ui.assets.NSPIcon.png");
+        private static readonly byte[] XciIcon = GetResourceBytes("Ryujinx.Ui.assets.XCIIcon.png");
+        private static readonly byte[] NcaIcon = GetResourceBytes("Ryujinx.Ui.assets.NCAIcon.png");
+        private static readonly byte[] NroIcon = GetResourceBytes("Ryujinx.Ui.assets.NROIcon.png");
+        private static readonly byte[] NsoIcon = GetResourceBytes("Ryujinx.Ui.assets.NSOIcon.png");
 
         private static VirtualFileSystem _virtualFileSystem;
         private static Language          _desiredTitleLanguage;
@@ -87,7 +82,7 @@ namespace Ryujinx.Ui
             controlFile.Read(out _, 0, outProperty, ReadOption.None).ThrowIfFailure();
         }
 
-        public static void LoadApplications(List<string> appDirs, VirtualFileSystem virtualFileSystem, Language desiredTitleLanguage)
+        public static void LoadApplications(List<string> appDirs, VirtualFileSystem virtualFileSystem, Language desiredTitleLanguage, Action<string> showErrorDialog)
         {
             int numApplicationsFound  = 0;
             int numApplicationsLoaded = 0;
@@ -129,7 +124,7 @@ namespace Ryujinx.Ui
                 double fileSize        = new FileInfo(applicationPath).Length * 0.000000000931;
                 string titleName       = "Unknown";
                 string titleId         = "0000000000000000";
-                string developer       = "Unknown";
+                string publisher       = "Unknown";
                 string version         = "0";
                 byte[] applicationIcon = null;
                 BlitStruct<ApplicationControlProperty> controlHolder = new BlitStruct<ApplicationControlProperty>(1);
@@ -193,7 +188,7 @@ namespace Ryujinx.Ui
 
                                 if (isExeFs)
                                 {
-                                    applicationIcon = _nspIcon;
+                                    applicationIcon = NspIcon;
 
                                     Result result = pfs.OpenFile(out IFile npdmFile, "/main.npdm".ToU8Span(), OpenMode.Read);
 
@@ -218,7 +213,7 @@ namespace Ryujinx.Ui
                                     // Get the title name, title ID, developer name and version number from the NACP
                                     version = IsUpdateApplied(titleId, out string updateVersion) ? updateVersion : controlHolder.Value.DisplayVersion.ToString();
 
-                                    GetNameIdDeveloper(ref controlHolder.Value, out titleName, out _, out developer);
+                                    GetNameIdPublisher(ref controlHolder.Value, out titleName, out _, out publisher);
 
                                     // Read the icon from the ControlFS and store it as a byte array
                                     try
@@ -256,20 +251,20 @@ namespace Ryujinx.Ui
 
                                         if (applicationIcon == null)
                                         {
-                                            applicationIcon = Path.GetExtension(applicationPath).ToLower() == ".xci" ? _xciIcon : _nspIcon;
+                                            applicationIcon = Path.GetExtension(applicationPath).ToLower() == ".xci" ? XciIcon : NspIcon;
                                         }
                                     }
                                 }
                             }
                             catch (MissingKeyException exception)
                             {
-                                applicationIcon = Path.GetExtension(applicationPath).ToLower() == ".xci" ? _xciIcon : _nspIcon;
+                                applicationIcon = Path.GetExtension(applicationPath).ToLower() == ".xci" ? XciIcon : NspIcon;
 
                                 Logger.PrintWarning(LogClass.Application, $"Your key set is missing a key with the name: {exception.Name}");
                             }
                             catch (InvalidDataException)
                             {
-                                applicationIcon = Path.GetExtension(applicationPath).ToLower() == ".xci" ? _xciIcon : _nspIcon;
+                                applicationIcon = Path.GetExtension(applicationPath).ToLower() == ".xci" ? XciIcon : NspIcon;
 
                                 Logger.PrintWarning(LogClass.Application, $"The header key is incorrect or missing and therefore the NCA header content type check has failed. Errored File: {applicationPath}");
                             }
@@ -320,11 +315,11 @@ namespace Ryujinx.Ui
                                     // Get the title name, title ID, developer name and version number from the NACP
                                     version = controlHolder.Value.DisplayVersion.ToString();
 
-                                    GetNameIdDeveloper(ref controlHolder.Value, out titleName, out titleId, out developer);
+                                    GetNameIdPublisher(ref controlHolder.Value, out titleName, out titleId, out publisher);
                                 }
                                 else
                                 {
-                                    applicationIcon = _nroIcon;
+                                    applicationIcon = NroIcon;
                                     titleName       = Path.GetFileNameWithoutExtension(applicationPath);
                                 }
                             }
@@ -365,13 +360,13 @@ namespace Ryujinx.Ui
                                 continue;
                             }
 
-                            applicationIcon = _ncaIcon;
+                            applicationIcon = NcaIcon;
                             titleName       = Path.GetFileNameWithoutExtension(applicationPath);
                         }
                         // If its an NSO we just set defaults
                         else if (Path.GetExtension(applicationPath).ToLower() == ".nso")
                         {
-                            applicationIcon = _nsoIcon;
+                            applicationIcon = NsoIcon;
                             titleName       = Path.GetFileNameWithoutExtension(applicationPath);
                         }
                     }
@@ -394,7 +389,7 @@ namespace Ryujinx.Ui
                     Icon          = applicationIcon,
                     TitleName     = titleName,
                     TitleId       = titleId,
-                    Developer     = developer,
+                    Publisher     = publisher,
                     Version       = version,
                     TimePlayed    = ConvertSecondsToReadableString(appMetadata.TimePlayed),
                     LastPlayed    = appMetadata.LastPlayed,
@@ -428,7 +423,7 @@ namespace Ryujinx.Ui
             {
                 Gtk.Application.Invoke(delegate
                 {
-                    GtkDialog.CreateErrorDialog("One or more files encountered could not be loaded, check logs for more info.");
+                    showErrorDialog("One or more files encountered could not be loaded, check logs for more info.");
                 });
             }
         }
@@ -559,7 +554,7 @@ namespace Ryujinx.Ui
             return readableString;
         }
 
-        private static void GetNameIdDeveloper(ref ApplicationControlProperty controlData, out string titleName, out string titleId, out string publisher)
+        private static void GetNameIdPublisher(ref ApplicationControlProperty controlData, out string titleName, out string titleId, out string publisher)
         {
             Enum.TryParse(_desiredTitleLanguage.ToString(), out TitleLanguage desiredTitleLanguage);
 

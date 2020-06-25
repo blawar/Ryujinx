@@ -20,7 +20,7 @@
     <property name="step_increment">0.01</property>
     <property name="page_increment">0.10000000000000001</property>
   </object>
-  <object class="GtkWindow" id="_controllerWin">
+  <object class="GtkWindow" id="ControllerWindow">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Ryujinx - Controller Settings</property>
     <property name="modal">True</property>
@@ -82,7 +82,6 @@
                                 <items>
                                   <item id="disabled" translatable="yes">Disabled</item>
                                 </items>
-                                <signal name="changed" handler="InputDevice_Changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -91,13 +90,12 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkToggleButton" id="_refreshInputDevicesButton">
+                              <object class="GtkButton" id="_refreshInputDevicesButton">
                                 <property name="label" translatable="yes">Refresh</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="margin_left">5</property>
-                                <signal name="toggled" handler="RefreshInputDevicesButton_Pressed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -145,7 +143,6 @@
                                   <item id="JoyconLeft" translatable="yes">Left Joycon</item>
                                   <item id="JoyconRight" translatable="yes">Right Joycon</item>
                                 </items>
-                                <signal name="changed" handler="Controller_Changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -193,14 +190,13 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkToggleButton">
+                              <object class="GtkButton" id="_loadProfile">
                                 <property name="label" translatable="yes">Load</property>
                                 <property name="width_request">60</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="margin_right">5</property>
-                                <signal name="toggled" handler="ProfileLoad_Activated" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -209,14 +205,13 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkToggleButton">
+                              <object class="GtkButton" id="_addProfile">
                                 <property name="label" translatable="yes">Add</property>
                                 <property name="width_request">60</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="margin_right">5</property>
-                                <signal name="toggled" handler="ProfileAdd_Activated" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -225,13 +220,12 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkToggleButton">
+                              <object class="GtkButton" id="_removeProfile">
                                 <property name="label" translatable="yes">Remove</property>
                                 <property name="width_request">60</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <signal name="toggled" handler="ProfileRemove_Activated" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1690,12 +1684,11 @@
             <property name="margin_bottom">3</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkToggleButton" id="SaveToggle">
+              <object class="GtkButton" id="_saveButton">
                 <property name="label" translatable="yes">Save</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="toggled" handler="SaveToggle_Activated" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1704,13 +1697,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToggleButton" id="CloseToggle">
+              <object class="GtkButton" id="_closeButton">
                 <property name="label" translatable="yes">Close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="margin_left">4</property>
-                <signal name="toggled" handler="CloseToggle_Activated" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>

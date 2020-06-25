@@ -2,7 +2,7 @@
 <!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <object class="GtkDialog" id="_aboutWin">
+  <object class="GtkDialog" id="AboutWindow">
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
@@ -101,10 +101,9 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkEventBox">
+                              <object class="GtkEventBox" id="_ryujinxEventBox">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <signal name="button-press-event" handler="RyujinxButton_Pressed" swapped="no"/>
                                 <child>
                                   <object class="GtkLabel">
                                     <property name="visible">True</property>
@@ -198,11 +197,10 @@ or any of its partners, in any way</property>
                     <property name="can_focus">False</property>
                     <property name="margin_top">25</property>
                     <child>
-                      <object class="GtkEventBox" id="PatreonButton">
+                      <object class="GtkEventBox" id="_patreonEventBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Click to open the Ryujinx Patreon page in your default browser</property>
-                        <signal name="button-press-event" handler="PatreonButton_Pressed" swapped="no"/>
                         <child>
                           <object class="GtkBox">
                             <property name="visible">True</property>
@@ -241,11 +239,10 @@ or any of its partners, in any way</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEventBox" id="GitHubButton">
+                      <object class="GtkEventBox" id="_gitHubEventBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Click to open the Ryujinx GitHub page in your default browser</property>
-                        <signal name="button-press-event" handler="GitHubButton_Pressed" swapped="no"/>
                         <child>
                           <object class="GtkBox">
                             <property name="visible">True</property>
@@ -284,11 +281,10 @@ or any of its partners, in any way</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEventBox" id="DiscordButton">
+                      <object class="GtkEventBox" id="_discordEventBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Click to open an invite to the Ryujinx Discord server in your default browser</property>
-                        <signal name="button-press-event" handler="DiscordButton_Pressed" swapped="no"/>
                         <child>
                           <object class="GtkBox">
                             <property name="visible">True</property>
@@ -327,11 +323,10 @@ or any of its partners, in any way</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEventBox" id="TwitterButton">
+                      <object class="GtkEventBox" id="_twitterEventBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Click to open the Ryujinx Twitter page in your default browser</property>
-                        <signal name="button-press-event" handler="TwitterButton_Pressed" swapped="no"/>
                         <child>
                           <object class="GtkBox">
                             <property name="visible">True</property>
@@ -485,7 +480,8 @@ Developers interested in contributing can find out more on our Discord.</propert
                                     <property name="label" translatable="yes">gdkchan
 LDj3SNuD
 Ac_K
-Thog</property>
+Thog
+Xpl0itR</property>
                                     <property name="yalign">0</property>
                                   </object>
                                   <packing>
@@ -501,8 +497,9 @@ Thog</property>
                                     <property name="halign">start</property>
                                     <property name="label" translatable="yes">»jD«
 emmaus
-Thealexbarney
-Andy A (BaronKiko)</property>
+Moosehunter
+Andy A (BaronKiko)
+riperiperi</property>
                                     <property name="yalign">0</property>
                                   </object>
                                   <packing>
@@ -523,11 +520,10 @@ Andy A (BaronKiko)</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEventBox" id="ContributorsButton">
+                      <object class="GtkEventBox" id="_contributorsEventBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="valign">start</property>
-                        <signal name="button-press-event" handler="ContributorsButton_Pressed" swapped="no"/>
                         <child>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
